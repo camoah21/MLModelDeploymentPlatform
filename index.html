@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Model Deployment Platform</title>
+</head>
+
+<body>
+    <h1>Upload ML Model</h1>
+    <form id="uploadForm">
+        <input type="file" id="modelFile" name="model">
+        <button type="submit">Upload</button>
+    </form>
+    <div id="uploadResponse"></div>
+
+    <h1>Predict</h1>
+    <form id="predictForm">
+        <input type="text" id="modelName" name="model_name" placeholder="Model Name">
+        <textarea id="inputData" name="input" placeholder="Input Data (JSON format)"></textarea>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="predictResponse"></div>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async function (e) {
+            e.preventDefault();
+            const formData = new FormData();
+            const file = document.getElementById('modelFile').files[0];
+            formData.append('model', file);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            document.getElementById('uploadResponse').textContent = JSON.stringify(result);
+        };
+
+        document.getElementById('predictForm').onsubmit = async function (e) {
+            e.preventDefault();
+            const modelName = document.getElementById('modelName').value;
+            const inputData = JSON.parse(document.getElementById('inputData').value);
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ model_name: modelName, input: inputData })
+            });
+            const result = await response.json();
+            document.getElementById('predictResponse').textContent = JSON.stringify(result);
+        };
+    </script>
+</body>
+
+</html>
